@@ -1,0 +1,74 @@
+namespace LiteDatabase.Sql.Token;
+
+public enum TokenType {
+	INT,
+	STRING,
+	FLOAT,
+	ID,
+	ABORT,
+	ADD,
+	ALTER,
+	ALL,
+	AND,
+	ANY,
+	AS,
+	ASC, // 升序
+	AVG,
+	BY,
+	BEGIN,
+	CHECK,
+	COLUMN,
+	COMMIT,
+	COUNT,
+	CREATE,
+	DELETE,
+	DESC, // descending  降序
+	DROP, // keywords
+	DISTINCT,
+	EXCEPT,
+	FOREIGN,
+	FROM,
+	GROUP,
+	HAVING,
+	IN,
+	INDEX,
+	INSERT,
+	INTO,
+	IS,
+	JOIN,
+	KEY,
+	LIKE,
+	MIN,
+	MAX,
+	NOT,
+	NULL,
+	OR,
+	ORDER,
+	PRIMARY,
+	TABLE,
+	SELECT,
+	SET,
+	SUM,
+	UPDATE,
+	UNION,
+	VALUES,
+	WHERE,
+
+	L_BRACKET,        // (
+	R_BRACKET,        // )
+	SEMICOLON,        // ;
+	COMMA,            // ,
+	DOT,              // .
+	ASTERISK,         // '*'
+	PLUS,             // +
+	MINUS,            // -
+	DIVISION,         // /
+	GREATER_THAN,     // >
+	LESS_THAN,        // <
+	GREATER_EQUAL_TO, // >=
+	LESS_EQUAL_TO,    // <=
+	EQUAL,            // =
+	NOT_EQUAL,        // != <>
+	ILLEGAL,
+	END
+}

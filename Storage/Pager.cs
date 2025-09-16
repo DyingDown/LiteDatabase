@@ -1,6 +1,5 @@
 namespace LiteDatabase.Storage;
 
-public class Pager
-{
+public class Pager {
     
 }

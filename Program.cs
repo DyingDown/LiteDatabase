@@ -1,23 +1,36 @@
 ﻿using LiteDatabase.Catalog;
 using LiteDatabase.Sql;
+using LiteDatabase.Sql.Token;
 using LiteDatabase.Storage;
 using LiteDatabase.Table;
+using LiteDatabase.Tests;
 using LiteDatabase.Transaction;
+using Microsoft.Extensions.Logging;
 
 namespace LiteDatabase;
 
 class Program
 {
-    static void Main(string[] args)
-    {
-        // Console.WriteLine("Hello, World!");
+    public static ILoggerFactory LoggerFactory { get; private set; } = null!;
+
+    static void Main(string[] args) {
+        // 创建全局 LoggerFactory
+        LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+            builder.SetMinimumLevel(LogLevel.Information);
+        });
+
+        Console.WriteLine("程序启动！");
+
+        // 运行 Tokenizer 测试
+        TokenizerTest.RunAllTests();
 
         var pager = new Pager();
         var bufferPool = new BufferPool();
         var fileIO = new FileIO();
 
         IStorageEngine storageEngine = new StorageEngine(pager, bufferPool, fileIO);
-
 
         var logManager = new LogManager();
         var lockManager = new LockManager();

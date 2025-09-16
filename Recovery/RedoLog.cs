@@ -1,6 +1,5 @@
 namespace LiteDatabase.Recovery;
 
-class RedoLog
-{ 
+class RedoLog { 
     
 }

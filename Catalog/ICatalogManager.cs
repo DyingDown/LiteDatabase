@@ -1,6 +1,5 @@
 namespace LiteDatabase.Catalog;
 
-public interface ICatalogManager
-{
+public interface ICatalogManager {
     
 }

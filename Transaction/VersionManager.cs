@@ -1,6 +1,5 @@
 namespace LiteDatabase.Storage;
 
-public class VersionManager
-{
+public class VersionManager {
     
 }

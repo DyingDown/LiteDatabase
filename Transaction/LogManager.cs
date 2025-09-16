@@ -2,14 +2,12 @@ using LiteDatabase.Recovery;
 
 namespace LiteDatabase.Transaction;
 
-public class LogManager
-{
+public class LogManager {
     private RedoLog redoLog;
 
     private Checkpoint checkpoint;
 
-    public LogManager()
-    {
+    public LogManager() {
         redoLog = new RedoLog();
         checkpoint = new Checkpoint();
     }

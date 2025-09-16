@@ -1,6 +1,5 @@
 namespace LiteDatabase.Storage;
 
-public interface IStorageEngine
-{
+public interface IStorageEngine {
     
 }

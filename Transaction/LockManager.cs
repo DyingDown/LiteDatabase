@@ -1,6 +1,5 @@
 namespace LiteDatabase.Transaction;
 
-public class LockManager
-{
+public class LockManager {
     
 }

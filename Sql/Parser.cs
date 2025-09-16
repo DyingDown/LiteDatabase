@@ -1,6 +1,5 @@
 namespace LiteDatabase.Sql;
 
-class Parser
-{
-    private Planner planner;
+class Parser {
+    
 }

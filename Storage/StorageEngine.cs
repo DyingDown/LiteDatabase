@@ -1,7 +1,6 @@
 namespace LiteDatabase.Storage;
 
-public class StorageEngine : IStorageEngine
-{
+public class StorageEngine : IStorageEngine {
     private Pager pager;
 
     private BufferPool bufferPool;

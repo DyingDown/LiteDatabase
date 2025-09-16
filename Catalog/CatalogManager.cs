@@ -1,6 +1,5 @@
 namespace LiteDatabase.Catalog;
 
-public class CatalogManager : ICatalogManager
-{
+public class CatalogManager : ICatalogManager {
     
 }

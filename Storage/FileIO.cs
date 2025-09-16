@@ -1,6 +1,5 @@
 namespace LiteDatabase.Storage;
 
-public class FileIO
-{
+public class FileIO {
     
 }
