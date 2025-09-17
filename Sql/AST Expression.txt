@@ -1,0 +1,128 @@
+<SQLStatement> ::= <CreateTable>
+                 | <DropTable>
+                 | <InsertStatement>
+                 | <SelectStatement>
+                 | <UpdateStatement>
+                 | <DeleteStatement>
+
+-------------------------------------------------
+-- CREATE TABLE / DROP TABLE
+-------------------------------------------------
+<CreateTable> ::= CREATE TABLE <TableName> L_BRACKET <ColumnDefList> R_BRACKET [SEMICOLON]
+
+<ColumnDefList> ::= <ColumnDef> [COMMA <ColumnDefList>]
+
+<ColumnDef> ::= <ColumnName> <DataType> [<ColumnConstraintList>]
+
+<ColumnConstraintList> ::= <ColumnConstraint> [<ColumnConstraintList>]
+
+<ColumnConstraint> ::= PRIMARY KEY
+                     | NOT NULL
+                     | UNIQUE
+                     | DEFAULT <Value>
+                     | INDEX <IndexName>
+
+<DataType> ::= INT
+             | FLOAT
+             | STRING [L_BRACKET NUMBER R_BRACKET]
+
+<DropTable> ::= DROP TABLE <TableNameList> [SEMICOLON]
+
+<TableNameList> ::= <TableName> [COMMA <TableNameList>]
+
+-------------------------------------------------
+-- INSERT
+-------------------------------------------------
+<InsertStatement> ::= INSERT INTO <TableName>
+                      [L_BRACKET <ColumnList> R_BRACKET]
+                      VALUES L_BRACKET <ValueList> R_BRACKET
+                      [SEMICOLON]
+
+<ColumnList> ::= <ColumnName> [COMMA <ColumnList>]
+
+<ValueList> ::= <Value> [COMMA <ValueList>]
+
+<Value> ::= NUMBER
+          | STRING
+          | NULL
+          | TRUE
+          | FALSE
+
+-------------------------------------------------
+-- SELECT
+-------------------------------------------------
+<SelectStatement> ::= SELECT <SelectList>
+                      FROM <TableList>
+                      [WHERE <Expression>]
+                      [GROUP BY <ColumnList>]
+                      [HAVING <Expression>]
+                      [ORDER BY <OrderList>]
+                      [SEMICOLON]
+
+<SelectList> ::= ASTERISK
+               | <SelectItem> [COMMA <SelectList>]
+
+<SelectItem> ::= <ColumnName> [AS <Alias>]
+               | <TableName> DOT <ColumnName> [AS <Alias>]
+               | <FunctionCall> [AS <Alias>]
+
+<TableList> ::= <TableName> [COMMA <TableList>]
+              | L_BRACKET <SelectStatement> R_BRACKET [AS <Alias>]
+
+<OrderList> ::= <OrderItem> [COMMA <OrderList>]
+
+<OrderItem> ::= <ColumnName> [ASC | DESC]
+
+<FunctionCall> ::= <FunctionName> L_BRACKET [<ExpressionList>] R_BRACKET
+
+<ExpressionList> ::= <Expression> [COMMA <ExpressionList>]
+
+-------------------------------------------------
+-- UPDATE / DELETE
+-------------------------------------------------
+<UpdateStatement> ::= UPDATE <TableName>
+                      SET <AssignList>
+                      [WHERE <Expression>]
+                      [SEMICOLON]
+
+<AssignList> ::= <Assign> [COMMA <AssignList>]
+
+<Assign> ::= <ColumnName> EQUAL <Expression>
+
+<DeleteStatement> ::= DELETE FROM <TableName>
+                      [WHERE <Expression>]
+                      [SEMICOLON]
+
+-------------------------------------------------
+-- Expression Grammar (WHERE, HAVING)
+-------------------------------------------------
+<Expression> ::= <OrExpr>
+
+<OrExpr> ::= <AndExpr> [OR <OrExpr>]
+
+<AndExpr> ::= <NotExpr> [AND <AndExpr>]
+
+<NotExpr> ::= [NOT] <PrimaryExpr>
+
+<PrimaryExpr> ::= <Value>
+                | <ColumnRef>
+                | <FunctionCall>
+                | L_BRACKET <Expression> R_BRACKET
+                | <ExistsExpr>
+
+<ColumnRef> ::= [<TableName> DOT] <ColumnName>
+
+<ExistsExpr> ::= [NOT] EXISTS L_BRACKET <SelectStatement> R_BRACKET
+
+-- comparison operators
+<PrimaryExpr> ::= <PrimaryExpr> <ComparisonOp> <PrimaryExpr>
+
+<ComparisonOp> ::= EQUAL
+                 | NOT_EQUAL
+                 | GREATER_THAN
+                 | LESS_THAN
+                 | GREATER_EQUAL_TO
+                 | LESS_EQUAL_TO
+                 | IS [NOT] NULL
+                 | [NOT] IN L_BRACKET <ValueList> R_BRACKET
+                 | [NOT] BETWEEN <Expression> AND <Expression>

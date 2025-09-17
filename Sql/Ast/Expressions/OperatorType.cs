@@ -14,8 +14,11 @@ public enum BinaryOperatorType {
     Like,
     In,
     Is,
-    IsNot
-
+    IsNot,
+    Add,     
+    Subtract, 
+    Multiply, 
+    Divide
 }
 
 public enum UnaryOperatorType {
@@ -39,6 +42,10 @@ public static class OperatorTypeExtensions {
         BinaryOperatorType.In => "IN",
         BinaryOperatorType.Is => "IS",
         BinaryOperatorType.IsNot => "IS NOT",
+        BinaryOperatorType.Add => "+",
+        BinaryOperatorType.Subtract => "-",
+        BinaryOperatorType.Multiply => "*",
+        BinaryOperatorType.Divide => "/",
         _ => op.ToString()
     };
 

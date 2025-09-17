@@ -3,10 +3,10 @@ namespace LiteDatabase.Sql.Ast;
 
 public class SelectNode : SqlNode {
     public List<SelectItem> SelectList { get; set; } = [];
-    public List<string> TableNames { get; set; } = [];
+    public List<(string, string)> TableNamesWithAlias { get; set; } = [];
     public Expression? WhereClause { get; set; } = null;
 
-    public List<string> GroupByColumns { get; set; } = [];
+    public List<ColumnRefExpression> GroupByColumns { get; set; } = [];
     public List<OrderItem> OrderItems { get; set; } = [];
 
     public override string ToString()
@@ -14,25 +14,25 @@ public class SelectNode : SqlNode {
         return $"""
 SELECT
   {string.Join(", ", SelectList.Select(item =>
-    item.IsStar ? "*" : $"{item.TableName}.{item.ColumnName}" + (string.IsNullOrEmpty(item.AliasName) ? "" : $" AS {item.AliasName}")
+    item.IsStar ? "*" : $"{item.Expr}" + (string.IsNullOrEmpty(item.AliasName) ? "" : $" AS {item.AliasName}")
   ))}
-FROM {string.Join(", ", TableNames)}
+FROM {string.Join(", ", TableNamesWithAlias.Select(t =>
+    string.IsNullOrEmpty(t.Item2) ? t.Item1 : $"{t.Item1} AS {t.Item2}"
+))}
 {(WhereClause != null ? $"WHERE {WhereClause}" : "")}
 {(GroupByColumns.Count > 0 ? $"GROUP BY {string.Join(", ", GroupByColumns)}" : "")}
-{(OrderItems.Count > 0 ? $"ORDER BY {string.Join(", ", OrderItems.Select(o => $"{o.ColumnName} {o.OrderType}"))}" : "")}
+{(OrderItems.Count > 0 ? $"ORDER BY {string.Join(", ", OrderItems.Select(o => $"{o.ColumnRef.ColumnName} {o.OrderType}"))}" : "")}
 """.Trim();
     }
 }
 
 public class SelectItem {
-    public string? TableName { get; }
-    public string ColumnName { get; }
+    public Expression? Expr { get; }
     public string? AliasName { get; }
     public bool IsStar { get; }
 
-    public SelectItem(string columnName, bool isStar, string? tableName = "", string? aliasName = "") {
-        TableName = tableName;
-        ColumnName = columnName;
+    public SelectItem(bool isStar, Expression? expr, string? aliasName = "") {
+        Expr = expr;
         AliasName = aliasName;
         IsStar = isStar;
     }
@@ -40,10 +40,10 @@ public class SelectItem {
 }
 
 public class OrderItem {
-    public string ColumnName { get; }
+    public ColumnRefExpression ColumnRef { get; }
     public OrderType OrderType { get; }
-    public OrderItem(string name, OrderType type) {
-        ColumnName = name;
+    public OrderItem(ColumnRefExpression columnRef, OrderType type) {
+        ColumnRef = columnRef;
         OrderType = type;
     }
 }

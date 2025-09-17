@@ -22,6 +22,7 @@ public enum TokenType {
 	COMMIT,
 	COUNT,
 	CREATE,
+	DEFAULT,
 	DELETE,
 	DESC, // descending  降序
 	DROP, // keywords
@@ -52,6 +53,7 @@ public enum TokenType {
 	SUM,
 	UPDATE,
 	UNION,
+	UNIQUE,
 	VALUES,
 	WHERE,
 

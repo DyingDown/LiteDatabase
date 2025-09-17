@@ -2,11 +2,11 @@ namespace LiteDatabase.Sql.Ast;
 
 public class InsertNode : SqlNode {
     public string TableName { get; set; } = "";
-    public List<string> ColumnNames { get; set; } = [];
+    public List<string>? ColumnNames { get; set; } = [];
     public List<SqlValue> Values { get; set; } = [];
 
     public override string ToString() {
-        var columnsStr = ColumnNames.Count > 0 
+        var columnsStr = ColumnNames?.Count > 0 
             ? $"({string.Join(", ", ColumnNames)}) " 
             : "";
         var valuesStr = string.Join(", ", Values.Select(v => v.ToString()));
@@ -19,7 +19,8 @@ public enum ValueType {
     Null,
     True,
     False,
-    Number,
+    Int,
+    Float,
 }
 
 public class SqlValue {
@@ -36,7 +37,8 @@ public class SqlValue {
         ValueType.Null => "NULL",
         ValueType.True => "TRUE",
         ValueType.False => "FALSE",
-        ValueType.Number => Value?.ToString() ?? "0",
+        ValueType.Int => Value?.ToString() ?? "0",
+        ValueType.Float => Value?.ToString() ?? "0.0",
         _ => Value?.ToString() ?? ""
     };
 }

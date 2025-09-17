@@ -3,10 +3,10 @@ namespace LiteDatabase.Sql.Ast;
 
 public class DeleteNode : SqlNode {
     public string TableName { get; set; } = "";
-    public Expression? Expression { get; set; } = null;
+    public Expression? WhereClause { get; set; } = null;
 
     public override string ToString() {
-        var whereStr = Expression != null ? $" WHERE {Expression}" : "";
+        var whereStr = WhereClause != null ? $" WHERE {WhereClause}" : "";
         return $"DELETE FROM {TableName}{whereStr}";
     }
 }
