@@ -22,10 +22,10 @@ class Parser {
             TokenType.INSERT => (SqlNode)ParseInsertStatement(),
             TokenType.UPDATE => (SqlNode)ParseUpdateStatement(),
             TokenType.DELETE => (SqlNode)ParseDeleteStatement(),
-            _ => throw new Exception($"不支持的SQL语句: {currentToken?.Lexeme}")
+            _ => throw new Exception($"Unsupported SQL statement: {currentToken?.Lexeme}")
         };
         if (currentToken?.Type != TokenType.SEMICOLON) {
-            throw new Exception("SQL语句必须以分号结尾");
+            throw new Exception("SQL statement must end with a semicolon");
         }
         return node;
     }
@@ -34,30 +34,30 @@ class Parser {
         var node = new CreateTableNode();
 
         if (currentToken?.Type != TokenType.CREATE) {
-            throw new Exception("Create Table statement must start with CREATE");
+            throw new Exception("CREATE TABLE statement must start with CREATE");
         }
         NextToken();
 
         if (currentToken?.Type != TokenType.TABLE) {
-            throw new Exception("Create Table Statement must start with CREATE TABLE");
+            throw new Exception("CREATE TABLE statement must start with CREATE TABLE");
         }
         NextToken();
 
         if (currentToken?.Type != TokenType.ID) {
-            throw new Exception("Create table statement missing table name identifier");
+            throw new Exception("CREATE TABLE statement missing table name identifier");
         }
         node.TableName = currentToken.Lexeme;
         NextToken();
 
         if (currentToken?.Type != TokenType.L_BRACKET) {
-            throw new Exception("Missing '(' for Create Table statement");
+            throw new Exception("Missing '(' in CREATE TABLE statement");
         }
         NextToken();
 
         node.Columns = ParseColumnDefinition();
 
         if (currentToken?.Type != TokenType.R_BRACKET) {
-            throw new Exception("Missing ')' for create table statement");
+            throw new Exception("Missing ')' in CREATE TABLE statement");
         }
         NextToken();
 
@@ -69,7 +69,7 @@ class Parser {
         var node = new SelectNode();
 
         if (currentToken?.Type != TokenType.SELECT) {
-            throw new Exception("Select statment Must start with SELECT");
+            throw new Exception("SELECT statement must start with SELECT");
         }
 
         NextToken();
@@ -77,7 +77,7 @@ class Parser {
         node.SelectList = ParseSelectList();
 
         if (currentToken?.Type != TokenType.FROM) {
-            throw new Exception("Missing source table name");
+            throw new Exception("Missing FROM clause in SELECT statement");
         }
         NextToken();
         node.TableNamesWithAlias = ParseTableList();
@@ -90,7 +90,7 @@ class Parser {
         if (currentToken?.Type == TokenType.GROUP) {
             NextToken();
             if (currentToken?.Type != TokenType.BY) {
-                throw new Exception("GROUP must follow with BY");
+                throw new Exception("GROUP must be followed by BY");
             }
             NextToken();
             node.GroupByColumns = ParseGroupByColumns();
@@ -99,7 +99,7 @@ class Parser {
         if (currentToken?.Type == TokenType.ORDER) {
             NextToken();
             if (currentToken?.Type != TokenType.BY) {
-                throw new Exception("ORDER must follow with BY");
+                throw new Exception("ORDER must be followed by BY");
             }
             NextToken();
             node.OrderItems = ParseOrderBy();
@@ -156,7 +156,7 @@ class Parser {
         NextToken();
 
         if (currentToken?.Type != TokenType.ID) {
-            throw new Exception("Must specify a table name identifier for Insert statement");
+            throw new Exception("INSERT statement must specify table name identifier");
         }
 
         node.TableName = currentToken.Lexeme;
@@ -166,7 +166,7 @@ class Parser {
             NextToken();
             while (true) {
                 if (currentToken?.Type != TokenType.ID) {
-                    throw new Exception("Missing Column name for Insert statement");
+                    throw new Exception("Missing column name in INSERT statement");
                 }
                 node.ColumnNames.Add(currentToken.Lexeme);
                 NextToken();
@@ -177,18 +177,18 @@ class Parser {
                 break;
             }
             if (currentToken?.Type != TokenType.R_BRACKET) {
-                throw new Exception("Missing ')' for insert statment columns");
+                throw new Exception("Missing ')' in INSERT statement columns");
             }
             NextToken();
         }
 
         if (currentToken?.Type != TokenType.VALUES) {
-            throw new Exception("Missing 'VALUES' for insert statement");
+            throw new Exception("Missing 'VALUES' in INSERT statement");
         }
         NextToken();
 
         if (currentToken?.Type != TokenType.L_BRACKET) {
-            throw new Exception("Missing '(' for insert statement values");
+            throw new Exception("Missing '(' in INSERT statement values");
         }
         NextToken();
 
@@ -230,19 +230,19 @@ class Parser {
         NextToken();
 
         if (currentToken?.Type != TokenType.SET) {
-            throw new Exception("TableName must follows 'SET' in Update Statement");
+            throw new Exception("UPDATE statement must be followed by 'SET'");
         } 
         NextToken();
 
         while (true) {
             if (currentToken?.Type != TokenType.ID) {
-                throw new Exception("update statement: Assign start with a column Name");
+                throw new Exception("UPDATE statement assignment must start with column name");
             }
             string columnName = currentToken.Lexeme;
             NextToken();
 
             if (currentToken?.Type != TokenType.EQUAL) {
-                throw new Exception("update statement: Assign should only use '='");
+                throw new Exception("UPDATE statement assignment must use '=' operator");
             }
             NextToken();
 
@@ -267,17 +267,17 @@ class Parser {
         DeleteNode node = new DeleteNode();
 
         if (currentToken?.Type != TokenType.DELETE) {
-            throw new Exception("Delete statement must start with DELETE");
-        } 
+            throw new Exception("DELETE statement must start with DELETE");
+        }
         NextToken();
 
         if (currentToken?.Type != TokenType.FROM) {
-            throw new Exception("Delete statement must start with DELETE FROM");
-        } 
+            throw new Exception("DELETE statement must start with DELETE FROM");
+        }
         NextToken();
 
         if (currentToken?.Type != TokenType.ID) {
-            throw new Exception("UPDATE statement must have a table name");
+            throw new Exception("DELETE statement must specify table name");
         }
         node.TableName = currentToken.Lexeme;
         NextToken();
@@ -314,7 +314,7 @@ class Parser {
             if (type == ColumnType.String && currentToken?.Type == TokenType.L_BRACKET) {
                 NextToken();
                 if (currentToken?.Type != TokenType.INT)
-                    throw new Exception("string type with length must be an integer");
+                    throw new Exception("STRING type with length must be an integer");
                 len = int.TryParse(currentToken.Lexeme, out int v) ? v : 0;
                 NextToken();
                 if (currentToken?.Type != TokenType.R_BRACKET)
@@ -330,14 +330,14 @@ class Parser {
                     case TokenType.PRIMARY:
                         NextToken();
                         if (currentToken?.Type != TokenType.KEY)
-                            throw new Exception("PRIMARY must follow with KEY");
+                            throw new Exception("PRIMARY must be followed by KEY");
                         constraint.Type = ColumnConstraintType.PrimaryKey;
                         NextToken();
                         break;
                     case TokenType.NOT:
                         NextToken();
                         if (currentToken?.Type != TokenType.NULL)
-                            throw new Exception("NOT must follow with NULL");
+                            throw new Exception("NOT must be followed by NULL");
                         constraint.Type = ColumnConstraintType.NotNull;
                         NextToken();
                         break;
@@ -387,7 +387,7 @@ class Parser {
                         if (currentToken?.Type == TokenType.AS) {
                             NextToken();
                             if (currentToken?.Type != TokenType.ID) {
-                                throw new Exception("AS must follow with an identifier");
+                                throw new Exception("AS must be followed by an identifier");
                             }
                             aliasName = currentToken.Lexeme;
                             NextToken();
@@ -407,7 +407,7 @@ class Parser {
                 if (currentToken?.Type == TokenType.AS) {
                     NextToken();
                     if (currentToken?.Type != TokenType.ID) {
-                        throw new Exception("AS must follow with an identifier");
+                        throw new Exception("AS must be followed by an identifier");
                     }
                     aliasName = currentToken.Lexeme;
                     NextToken();
@@ -427,14 +427,14 @@ class Parser {
         var list = new List<(string, string)>();
         while (true) {
             if (currentToken?.Type != TokenType.ID) {
-                throw new Exception("FROM must follows with a table name identifier");
+                throw new Exception("FROM must be followed by a table name identifier");
             }
             string tableName = currentToken.Lexeme, aliasName = "";
             NextToken();
             if (currentToken?.Type == TokenType.AS) {
                 NextToken();
                 if (currentToken?.Type != TokenType.ID) {
-                    throw new Exception("AS must follows with Alias Identifier");
+                    throw new Exception("AS must be followed by alias identifier");
                 }
                 aliasName = currentToken.Lexeme;
                 NextToken();
@@ -473,7 +473,7 @@ class Parser {
         if (currentToken?.Type == TokenType.DOT) {
             NextToken();
             if (currentToken?.Type != TokenType.ID)
-                throw new Exception("Dot must follow with column name");
+                throw new Exception("Dot must be followed by column name");
             string second = currentToken.Lexeme;
             NextToken();
             return (first, second); // table.column
@@ -632,7 +632,7 @@ class Parser {
             if (currentToken?.Type == TokenType.DOT) {
                 NextToken();
                 if (currentToken?.Type != TokenType.ID) {
-                    throw new Exception("Dot must follows columns name");
+                    throw new Exception("Dot must be followed by column name");
                 }
                 string columnName = currentToken.Lexeme;
                 return new ColumnRefExpression(columnName, name);
@@ -654,7 +654,7 @@ class Parser {
             NextToken();
             return new LiteralExpression(value);
         }
-        throw new Exception($"Unable to 解析 expression, unkown token: {currentToken?.Lexeme}");
+        throw new Exception($"Unable to parse expression, unknown token: {currentToken?.Lexeme}");
     }
 
     private void NextToken() {
