@@ -16,6 +16,7 @@ public enum TokenType {
 	AVG,
 	BY,
 	BEGIN,
+	BETWEEN,
 	CHECK,
 	COLUMN,
 	COMMIT,
@@ -69,6 +70,8 @@ public enum TokenType {
 	LESS_EQUAL_TO,    // <=
 	EQUAL,            // =
 	NOT_EQUAL,        // != <>
+	TRUE,
+	FALSE,
 	ILLEGAL,
 	END
 }

@@ -142,6 +142,7 @@ public class Tokenizer {
             "asc" => new Token(TokenType.ASC, str),
             "avg" => new Token(TokenType.AVG, str),
             "begin" => new Token(TokenType.BEGIN, str),
+            "between" => new Token(TokenType.BETWEEN, str),
             "by" => new Token(TokenType.BY, str),
             "check" => new Token(TokenType.CHECK, str),
             "column" => new Token(TokenType.COLUMN, str),
@@ -179,6 +180,8 @@ public class Tokenizer {
             "union" => new Token(TokenType.UNION, str),
             "values" => new Token(TokenType.VALUES, str),
             "where" => new Token(TokenType.WHERE, str),
+            "true" => new Token(TokenType.TRUE, str),
+            "false" => new Token(TokenType.FALSE, str),
             _ => new Token(TokenType.ID, str),
         };
     }
