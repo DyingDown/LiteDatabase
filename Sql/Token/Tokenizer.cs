@@ -73,7 +73,7 @@ public class Tokenizer {
         }
         if (currentPosition < sql.Length && sql[currentPosition] == quote) {
             currentPosition++;
-            return new Token(TokenType.STRING, sql.Substring(startPos + 1, currentPosition - startPos - 2));
+            return new Token(TokenType.STRING_LITERAL, sql.Substring(startPos + 1, currentPosition - startPos - 2));
         }
         return new Token(TokenType.ILLEGAL, sql.Substring(startPos, currentPosition - startPos));
     }
@@ -141,6 +141,7 @@ public class Tokenizer {
             "as" => new Token(TokenType.AS, str),
             "asc" => new Token(TokenType.ASC, str),
             "avg" => new Token(TokenType.AVG, str),
+            "bool" => new Token(TokenType.BOOL, str),
             "begin" => new Token(TokenType.BEGIN, str),
             "between" => new Token(TokenType.BETWEEN, str),
             "by" => new Token(TokenType.BY, str),
@@ -161,6 +162,7 @@ public class Tokenizer {
             "having" => new Token(TokenType.HAVING, str),
             "in" => new Token(TokenType.IN, str),
             "index" => new Token(TokenType.INDEX, str),
+            "int" => new Token(TokenType.INT, str),
             "is" => new Token(TokenType.IS, str),
             "insert" => new Token(TokenType.INSERT, str),
             "into" => new Token(TokenType.INTO, str),
@@ -171,8 +173,12 @@ public class Tokenizer {
             "max" => new Token(TokenType.MAX, str),
             "not" => new Token(TokenType.NOT, str),
             "null" => new Token(TokenType.NULL, str),
+            "or" => new Token(TokenType.OR, str),
             "order" => new Token(TokenType.ORDER, str),
             "primary" => new Token(TokenType.PRIMARY, str),
+            "string" => new Token(TokenType.VARCHAR, str),
+            "varchar" => new Token(TokenType.VARCHAR, str),
+            "float" => new Token(TokenType.FLOAT, str),
             "table" => new Token(TokenType.TABLE, str),
             "select" => new Token(TokenType.SELECT, str),
             "set" => new Token(TokenType.SET, str),

@@ -23,8 +23,8 @@ class Program
 
         Console.WriteLine("程序启动！");
 
-        // 运行 Tokenizer 测试
-        TokenizerTest.RunAllTests();
+        // 运行 Parser 测试
+        ParserTest.RunAllTests();
 
         var pager = new Pager();
         var bufferPool = new BufferPool();
@@ -41,7 +41,7 @@ class Program
 
         ITableManager tableManager = new TableManager(storageEngine, txnEngine, catalogManager);
 
-        var parser = new Parser();
+        // var parser = new Parser(""); // Parser需要SQL字符串参数
         var planner = new Planner();
         var executor = new Executor();
     }

@@ -2,8 +2,9 @@ namespace LiteDatabase.Sql.Token;
 
 public enum TokenType {
 	INT,
-	STRING,
+	VARCHAR,
 	FLOAT,
+	STRING_LITERAL,
 	ID,
 	ABORT,
 	ADD,
@@ -14,6 +15,7 @@ public enum TokenType {
 	AS,
 	ASC, // 升序
 	AVG,
+	BOOL,
 	BY,
 	BEGIN,
 	BETWEEN,

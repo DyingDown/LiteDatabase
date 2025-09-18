@@ -23,13 +23,19 @@ public class ColumnDefinition {
                 var constraintStr = ColumnConstraintToString(c.Type);
                 return c.Value != null ? $"{constraintStr}({c.Value})" : constraintStr;
             });
-        return $"{ColumnName} {ColumnTypeToString(ColumnType)} {string.Join(" ", constraints)}";
+        
+        var typeStr = ColumnTypeToString(ColumnType);
+        if (Length.HasValue && ColumnType == ColumnType.String) {
+            typeStr += $"({Length})";
+        }
+        
+        return $"{ColumnName} {typeStr} {string.Join(" ", constraints)}".Trim();
     }
 
     public string ColumnTypeToString(ColumnType type) => type switch {
         ColumnType.Int => "INT",
         ColumnType.Float => "FLOAT",
-        ColumnType.String => "STRING",
+        ColumnType.String => "VARCHAR",
         ColumnType.Bool => "BOOL",
         _ => "INVALID",
     };

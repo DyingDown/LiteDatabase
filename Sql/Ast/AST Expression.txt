@@ -24,7 +24,7 @@
 
 <DataType> ::= INT
              | FLOAT
-             | STRING [L_BRACKET NUMBER R_BRACKET]
+             | VARCHAR [L_BRACKET INT R_BRACKET]
 
 <DropTable> ::= DROP TABLE <TableNameList> [SEMICOLON]
 

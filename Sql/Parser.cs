@@ -186,33 +186,48 @@ class Parser {
             throw new Exception("Missing 'VALUES' in INSERT statement");
         }
         NextToken();
-
-        if (currentToken?.Type != TokenType.L_BRACKET) {
-            throw new Exception("Missing '(' in INSERT statement values");
-        }
-        NextToken();
-
+        
         while (true) {
-            if (currentToken?.Type is not (TokenType.INT or TokenType.FLOAT or TokenType.NULL or TokenType.TRUE or TokenType.FALSE or TokenType.STRING or TokenType.NULL)) {
-                throw new Exception("Invalid value type");
+
+            if (currentToken?.Type != TokenType.L_BRACKET) {
+                throw new Exception("Missing '(' in INSERT statement values");
             }
-            node.Values.Add(currentToken?.Type switch {
-                TokenType.INT => new SqlValue(Ast.ValueType.Int, int.TryParse(currentToken.Lexeme, out int v) ? v : 0),
-                TokenType.FLOAT => new SqlValue(Ast.ValueType.Float, double.TryParse(currentToken.Lexeme, out double d) ? d : 0.0),
-                TokenType.TRUE => new SqlValue(Ast.ValueType.True, true),
-                TokenType.FALSE => new SqlValue(Ast.ValueType.False, false),
-                TokenType.STRING => new SqlValue(Ast.ValueType.String, currentToken.Lexeme),
-                TokenType.NULL => new SqlValue(Ast.ValueType.Null, null),
-            });
             NextToken();
 
+            while (true) {
+                if (currentToken?.Type is not (TokenType.INT or TokenType.FLOAT or TokenType.NULL or TokenType.TRUE or TokenType.FALSE or TokenType.STRING_LITERAL or TokenType.NULL)) {
+                    throw new Exception("Invalid value type");
+                }
+                node.Values.Add(currentToken?.Type switch {
+                    TokenType.INT => new SqlValue(Ast.ValueType.Int, int.TryParse(currentToken.Lexeme, out int v) ? v : 0),
+                    TokenType.FLOAT => new SqlValue(Ast.ValueType.Float, double.TryParse(currentToken.Lexeme, out double d) ? d : 0.0),
+                    TokenType.TRUE => new SqlValue(Ast.ValueType.True, true),
+                    TokenType.FALSE => new SqlValue(Ast.ValueType.False, false),
+                    TokenType.STRING_LITERAL => new SqlValue(Ast.ValueType.String, currentToken.Lexeme),
+                    TokenType.NULL => new SqlValue(Ast.ValueType.Null, null),
+                    _ => throw new Exception("Unknown value type")
+                });
+                NextToken();
+
+                if (currentToken?.Type == TokenType.COMMA) {
+                    NextToken();
+                    continue;
+                }
+                break;
+
+            }
+
+            if (currentToken?.Type != TokenType.R_BRACKET) {
+                throw new Exception("Missing ')' in INSERT statement values");
+            }
+            NextToken();
             if (currentToken?.Type == TokenType.COMMA) {
                 NextToken();
                 continue;
             }
             break;
-
         }
+
         return node;        
     }
 
@@ -256,7 +271,7 @@ class Parser {
             break;
         }
 
-        if (currentToken?.Type != TokenType.WHERE) {
+        if (currentToken?.Type == TokenType.WHERE) {
             NextToken();
             node.WhereClause = ParseExpression();
         }
@@ -282,7 +297,7 @@ class Parser {
         node.TableName = currentToken.Lexeme;
         NextToken();
 
-        if (currentToken?.Type != TokenType.WHERE) {
+        if (currentToken?.Type == TokenType.WHERE) {
             NextToken();
             node.WhereClause = ParseExpression();
         }
@@ -301,24 +316,26 @@ class Parser {
             NextToken();
 
             // column data type
-            if (currentToken?.Type is not (TokenType.INT or TokenType.FLOAT or TokenType.STRING)) {
+            if (currentToken?.Type is not (TokenType.INT or TokenType.FLOAT or TokenType.VARCHAR or TokenType.BOOL)) {
                 throw new Exception("Invalid data type for column");
             }
             ColumnType type = currentToken?.Type switch {
                 TokenType.INT => ColumnType.Int,
                 TokenType.FLOAT => ColumnType.Float,
-                TokenType.STRING => ColumnType.String,
+                TokenType.VARCHAR => ColumnType.String,
+                TokenType.BOOL => ColumnType.Bool,
+                _ => throw new Exception($"Unsupported column type: {currentToken?.Type}")
             };
             NextToken();
             int? len = null;
             if (type == ColumnType.String && currentToken?.Type == TokenType.L_BRACKET) {
                 NextToken();
                 if (currentToken?.Type != TokenType.INT)
-                    throw new Exception("STRING type with length must be an integer");
+                    throw new Exception("VARCHAR type with length must be an integer");
                 len = int.TryParse(currentToken.Lexeme, out int v) ? v : 0;
                 NextToken();
                 if (currentToken?.Type != TokenType.R_BRACKET)
-                    throw new Exception("Missing ')' after STRING length");
+                    throw new Exception("Missing ')' after VARCHAR length");
                 NextToken();
             }
 
@@ -371,39 +388,12 @@ class Parser {
                 list.Add(new SelectItem(true, new StarExpression(null), null));
                 NextToken();
             }
-            else if (currentToken?.Type == TokenType.ID) {
-                string tableName = "", columnName = currentToken.Lexeme;
-                NextToken();
-                if (currentToken?.Type == TokenType.DOT) {
-                    NextToken();
-                    if (currentToken?.Type == TokenType.ASTERISK) {
-                        list.Add(new SelectItem(true, new StarExpression(tableName), null));
-                        NextToken();
-                    }
-                    else if (currentToken?.Type == TokenType.ID) {
-                        tableName = columnName;
-                        columnName = currentToken.Lexeme;
-                        var aliasName = "";
-                        if (currentToken?.Type == TokenType.AS) {
-                            NextToken();
-                            if (currentToken?.Type != TokenType.ID) {
-                                throw new Exception("AS must be followed by an identifier");
-                            }
-                            aliasName = currentToken.Lexeme;
-                            NextToken();
-                        }
-                        list.Add(new SelectItem(false, new ColumnRefExpression(columnName, tableName), aliasName));
-
-                    }
-                    else {
-                        throw new Exception("Identifier or * expected after '.'");
-                    }
-                }
-
-            }
             else {
-                var expr = ParsePrimary();
-                string? aliasName = "";
+                // 先尝试解析完整的表达式
+                var expr = ParseExpression();
+                string? aliasName = null;
+                
+                // 检查是否有 AS 别名
                 if (currentToken?.Type == TokenType.AS) {
                     NextToken();
                     if (currentToken?.Type != TokenType.ID) {
@@ -412,8 +402,12 @@ class Parser {
                     aliasName = currentToken.Lexeme;
                     NextToken();
                 }
-                list.Add(new SelectItem(false, expr, aliasName));
+                
+                // 检查表达式是否是单纯的 * 
+                bool isWildcard = expr is StarExpression;
+                list.Add(new SelectItem(isWildcard, expr, aliasName));
             }
+            
             if (currentToken?.Type == TokenType.COMMA) {
                 NextToken();
                 continue;
@@ -431,11 +425,7 @@ class Parser {
             }
             string tableName = currentToken.Lexeme, aliasName = "";
             NextToken();
-            if (currentToken?.Type == TokenType.AS) {
-                NextToken();
-                if (currentToken?.Type != TokenType.ID) {
-                    throw new Exception("AS must be followed by alias identifier");
-                }
+            if (currentToken?.Type == TokenType.ID) {
                 aliasName = currentToken.Lexeme;
                 NextToken();
             }
@@ -454,7 +444,6 @@ class Parser {
         while (true) {
             (string tableName, string columnName) = ParseColumnRef();
             list.Add(new ColumnRefExpression(columnName, tableName));
-            NextToken();
             if (currentToken?.Type == TokenType.COMMA) {
                 NextToken();
                 continue;
@@ -525,6 +514,53 @@ class Parser {
 
     private Expression ParseComparison() {
         var left = ParseAddSub();
+        
+        // 处理 BETWEEN 操作符
+        if (currentToken?.Type == TokenType.BETWEEN) {
+            NextToken();
+            var lowerBound = ParseAddSub();
+            if (currentToken?.Type != TokenType.AND) {
+                throw new Exception("BETWEEN must be followed by AND");
+            }
+            NextToken();
+            var upperBound = ParseAddSub();
+            return new BetweenExpression(left, lowerBound, upperBound);
+        }
+        
+        // 处理 IN 操作符
+        if (currentToken?.Type == TokenType.IN) {
+            NextToken();
+            if (currentToken?.Type != TokenType.L_BRACKET) {
+                throw new Exception("IN must be followed by '('");
+            }
+            NextToken();
+            
+            var values = new List<Expression>();
+            
+            // 检查是否是子查询
+            if (currentToken?.Type == TokenType.SELECT) {
+                var subquery = ParseSelectStatement();
+                values.Add(new SubqueryExpression(subquery));
+            } else {
+                // 解析值列表
+                while (true) {
+                    values.Add(ParseExpression());
+                    if (currentToken?.Type == TokenType.COMMA) {
+                        NextToken();
+                        continue;
+                    }
+                    break;
+                }
+            }
+            
+            if (currentToken?.Type != TokenType.R_BRACKET) {
+                throw new Exception("Missing ')' in IN expression");
+            }
+            NextToken();
+            return new InExpression(left, values);
+        }
+        
+        // 处理普通比较操作符
         while (currentToken?.Type == TokenType.EQUAL || currentToken?.Type == TokenType.GREATER_THAN ||
               currentToken?.Type == TokenType.LESS_THAN || currentToken?.Type == TokenType.GREATER_EQUAL_TO || currentToken?.Type == TokenType.LESS_EQUAL_TO) {
             var op = currentToken?.Type switch {
@@ -533,6 +569,7 @@ class Parser {
                 TokenType.LESS_THAN => BinaryOperatorType.LessThan,
                 TokenType.GREATER_EQUAL_TO => BinaryOperatorType.GreaterOrEqual,
                 TokenType.GREATER_THAN => BinaryOperatorType.GreaterThan,
+                _ => throw new Exception("Unknown comparison operator")
             };
             NextToken();
             var right = ParseAddSub();
@@ -599,15 +636,28 @@ class Parser {
             return new UnaryExpression(UnaryOperatorType.Plus, expr);
         }
 
-        // function call
-        if (currentToken?.Type == TokenType.ID) {
+        // function call - check for both ID and function tokens
+        if (currentToken?.Type == TokenType.ID || 
+            currentToken?.Type == TokenType.COUNT || currentToken?.Type == TokenType.SUM || 
+            currentToken?.Type == TokenType.AVG || currentToken?.Type == TokenType.MIN || 
+            currentToken?.Type == TokenType.MAX) {
+            
             string name = currentToken.Lexeme;
+            TokenType currentTokenType = currentToken.Type;
 
             NextToken();
             var arguments = new List<Expression>();
             if (currentToken?.Type == TokenType.L_BRACKET) {
+                NextToken(); // consume L_BRACKET
                 while (true) {
-                    arguments.Add(ParseExpression());
+                    // Handle * as a special case for functions like COUNT(*)
+                    if (currentToken?.Type == TokenType.ASTERISK) {
+                        arguments.Add(new StarExpression(null));
+                        NextToken();
+                    } else {
+                        arguments.Add(ParseExpression());
+                    }
+                    
                     if (currentToken?.Type == TokenType.COMMA) {
                         NextToken();
                         continue;
@@ -629,12 +679,19 @@ class Parser {
                 return new FunctionCallExpression(funcName, arguments);
             }
 
+            // Only ID tokens can have dot notation for table.column
+            if (currentTokenType != TokenType.ID) {
+                // Function tokens without parentheses are not valid
+                throw new Exception($"Function '{name}' must be followed by parentheses");
+            }
+            
             if (currentToken?.Type == TokenType.DOT) {
                 NextToken();
                 if (currentToken?.Type != TokenType.ID) {
                     throw new Exception("Dot must be followed by column name");
                 }
                 string columnName = currentToken.Lexeme;
+                NextToken();
                 return new ColumnRefExpression(columnName, name);
             }
             return new ColumnRefExpression(name);
@@ -649,7 +706,7 @@ class Parser {
             NextToken();
             return new LiteralExpression(value);
         }
-        if (currentToken?.Type == TokenType.STRING) {
+        if (currentToken?.Type == TokenType.STRING_LITERAL) {
             object value = currentToken.Lexeme;
             NextToken();
             return new LiteralExpression(value);
