@@ -11,6 +11,8 @@ public class InExpression : Expression {
         Expression = expression;
         Values = values;
     }
+
+    public override void Accept(IVisitor visitor) => visitor.Visit(this);
     
     public override string ToString() {
         var valuesList = string.Join(", ", Values.Select(v => v.ToString()));

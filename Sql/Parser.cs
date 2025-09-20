@@ -1,4 +1,3 @@
-using System.Data;
 using LiteDatabase.Sql.Ast;
 using LiteDatabase.Sql.Ast.Expressions;
 using LiteDatabase.Sql.Token;
@@ -193,12 +192,12 @@ class Parser {
                 throw new Exception("Missing '(' in INSERT statement values");
             }
             NextToken();
-
+            var valuesList = new List<SqlValue>();
             while (true) {
                 if (currentToken?.Type is not (TokenType.INT or TokenType.FLOAT or TokenType.NULL or TokenType.TRUE or TokenType.FALSE or TokenType.STRING_LITERAL or TokenType.NULL)) {
                     throw new Exception("Invalid value type");
                 }
-                node.Values.Add(currentToken?.Type switch {
+                valuesList.Add(currentToken?.Type switch {
                     TokenType.INT => new SqlValue(Ast.ValueType.Int, int.TryParse(currentToken.Lexeme, out int v) ? v : 0),
                     TokenType.FLOAT => new SqlValue(Ast.ValueType.Float, double.TryParse(currentToken.Lexeme, out double d) ? d : 0.0),
                     TokenType.TRUE => new SqlValue(Ast.ValueType.True, true),
@@ -216,6 +215,8 @@ class Parser {
                 break;
 
             }
+
+            node.Values.Add(valuesList);
 
             if (currentToken?.Type != TokenType.R_BRACKET) {
                 throw new Exception("Missing ')' in INSERT statement values");
@@ -591,8 +592,13 @@ class Parser {
 
     private Expression ParseMulDiv() {
         var left = ParsePrimary();
-        while (currentToken?.Type == TokenType.ASTERISK || currentToken?.Type == TokenType.DIVISION) {
-            var op = currentToken?.Type == TokenType.ASTERISK ? BinaryOperatorType.Multiply : BinaryOperatorType.Divide;
+        while (currentToken?.Type == TokenType.ASTERISK || currentToken?.Type == TokenType.DIVISION || currentToken?.Type == TokenType.PERCENT) {
+            var op = currentToken?.Type switch {
+                TokenType.ASTERISK => BinaryOperatorType.Multiply,
+                TokenType.DIVISION => BinaryOperatorType.Divide,
+                TokenType.PERCENT => BinaryOperatorType.Modulo,
+                _ => throw new Exception("Unknown operator")
+            };
             NextToken();
             var right = ParsePrimary();
             left = new BinaryExpression(left, op, right);

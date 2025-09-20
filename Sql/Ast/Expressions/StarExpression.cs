@@ -7,5 +7,8 @@ public class StarExpression : Expression {
     public StarExpression(string? tableName) {
         TableName = tableName;
     }
-    public override string ToString() => TableName == null ? "*": $"{TableName}.*";
+    
+    public override void Accept(IVisitor visitor) => visitor.Visit(this);
+    
+    public override string ToString() => TableName == null ? "*" : $"{TableName}.*";
 }

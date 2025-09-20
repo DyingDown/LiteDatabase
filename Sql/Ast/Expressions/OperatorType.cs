@@ -15,10 +15,11 @@ public enum BinaryOperatorType {
     In,
     Is,
     IsNot,
-    Add,     
-    Subtract, 
-    Multiply, 
-    Divide
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Modulo
 }
 
 public enum UnaryOperatorType {
@@ -46,6 +47,7 @@ public static class OperatorTypeExtensions {
         BinaryOperatorType.Subtract => "-",
         BinaryOperatorType.Multiply => "*",
         BinaryOperatorType.Divide => "/",
+        BinaryOperatorType.Modulo => "%",
         _ => op.ToString()
     };
 

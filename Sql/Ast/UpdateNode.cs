@@ -6,6 +6,8 @@ public class UpdateNode : SqlNode {
     public List<Assign> Assigns { get; set; } = [];
     public Expression? WhereClause { get; set; } = null;
 
+    public override void Accept(IVisitor visitor) => visitor.Visit(this);
+
     public override string ToString()
     {
         var assignsStr = string.Join(", ", Assigns.Select(a => $"{a.ColumnName} = {a.Expression}"));

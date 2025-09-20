@@ -9,6 +9,8 @@ public class SelectNode : SqlNode {
     public List<ColumnRefExpression> GroupByColumns { get; set; } = [];
     public List<OrderItem> OrderItems { get; set; } = [];
 
+    public override void Accept(IVisitor visitor) => visitor.Visit(this);
+
     public override string ToString()
     {
         return $"""

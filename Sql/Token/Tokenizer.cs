@@ -211,6 +211,7 @@ public class Tokenizer {
             "-" => new Token(TokenType.MINUS, str),
             "*" => new Token(TokenType.ASTERISK, str),
             "/" => new Token(TokenType.DIVISION, str),
+            "%" => new Token(TokenType.PERCENT, str),
             ";" => new Token(TokenType.SEMICOLON, str),
             "," => new Token(TokenType.COMMA, str),
             ">" => new Token(TokenType.GREATER_THAN, str),

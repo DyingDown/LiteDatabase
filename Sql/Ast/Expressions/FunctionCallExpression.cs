@@ -10,6 +10,8 @@ public class FunctionCallExpression : Expression {
         Arguments = arguments;
     }
 
+    public override void Accept(IVisitor visitor) => visitor.Visit(this);
+    
     public override string ToString() => $"{FunctionNameToString(FunctionName)}({string.Join(", ", Arguments)})";
 
     private string FunctionNameToString(FunctionName func) => func switch {

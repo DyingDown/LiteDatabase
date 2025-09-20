@@ -26,6 +26,9 @@ class Program
         // 运行 Parser 测试
         ParserTest.RunAllTests();
 
+        // 运行表达式类型推断测试
+        ExpressionTypeInferrerTest.TestTypeCaching();
+
         var pager = new Pager();
         var bufferPool = new BufferPool();
         var fileIO = new FileIO();

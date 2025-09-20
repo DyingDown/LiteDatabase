@@ -9,7 +9,7 @@ public static class CharUtils {
     /// 判断字符是否是SQL允许的符号
     /// </summary>
     public static bool IsPunct(char c) {
-        return "+-*/=<>(),;.!".Contains(c);
+        return "+-*/%=<>(),;.!".Contains(c);
     }
 
 }

@@ -10,6 +10,8 @@ public class BinaryExpression : Expression {
         Right = right;
     }
 
+    public override void Accept(IVisitor visitor) => visitor.Visit(this);
+
     public override string ToString() => $"({Left} {Operator.ToSqlString()} {Right})";
 }
 

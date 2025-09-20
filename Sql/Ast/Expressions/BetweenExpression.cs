@@ -14,6 +14,8 @@ public class BetweenExpression : Expression {
         UpperBound = upperBound;
     }
     
+    public override void Accept(IVisitor visitor) => visitor.Visit(this);
+    
     public override string ToString() {
         return $"{Expression} BETWEEN {LowerBound} AND {UpperBound}";
     }

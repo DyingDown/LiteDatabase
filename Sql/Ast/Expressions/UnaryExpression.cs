@@ -10,6 +10,8 @@ public class UnaryExpression : Expression {
         Operand = operand;
     }
 
+    public override void Accept(IVisitor visitor) => visitor.Visit(this);
+    
     public override string ToString() => $"{OperatorToSql(Operator)} {Operand}";
 
     private string OperatorToSql(UnaryOperatorType op) => op switch {

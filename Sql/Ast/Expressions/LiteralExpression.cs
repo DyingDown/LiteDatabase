@@ -5,6 +5,9 @@ public class LiteralExpression : Expression {
     public LiteralExpression(object value) {
         Value = value;
     }
+
+    public override void Accept(IVisitor visitor) => visitor.Visit(this);
+    
     public override string ToString() {
         if (Value == null) return "NULL";
         if (Value is string) return $"'{Value}'";

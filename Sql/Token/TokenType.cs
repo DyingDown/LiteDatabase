@@ -68,6 +68,7 @@ public enum TokenType {
 	PLUS,             // +
 	MINUS,            // -
 	DIVISION,         // /
+	PERCENT,          // %
 	GREATER_THAN,     // >
 	LESS_THAN,        // <
 	GREATER_EQUAL_TO, // >=

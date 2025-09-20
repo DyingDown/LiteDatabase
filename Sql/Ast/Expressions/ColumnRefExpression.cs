@@ -8,5 +8,7 @@ public class ColumnRefExpression : Expression {
         TableName = tableName;
     }
 
+    public override void Accept(IVisitor visitor) => visitor.Visit(this);
+
     public override string ToString() => TableName == null ? ColumnName : $"{TableName}.{ColumnName}";
 }

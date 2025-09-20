@@ -3,14 +3,18 @@ namespace LiteDatabase.Sql.Ast;
 public class InsertNode : SqlNode {
     public string TableName { get; set; } = "";
     public List<string>? ColumnNames { get; set; } = [];
-    public List<SqlValue> Values { get; set; } = [];
+    public List<List<SqlValue>> Values { get; set; } = [];
+
+    public override void Accept(IVisitor visitor) => visitor.Visit(this);
 
     public override string ToString() {
-        var columnsStr = ColumnNames?.Count > 0 
-            ? $"({string.Join(", ", ColumnNames)}) " 
+        var columnsStr = ColumnNames?.Count > 0
+            ? $"({string.Join(", ", ColumnNames)}) "
             : "";
-        var valuesStr = string.Join(", ", Values.Select(v => v.ToString()));
-        return $"INSERT INTO {TableName} {columnsStr}VALUES ({valuesStr})";
+        var valuesStr = string.Join(", ", Values.Select(row =>
+            $"({string.Join(", ", row.Select(val => val.ToString()))})"
+        ));
+        return $"INSERT INTO {TableName} {columnsStr}VALUES {valuesStr}";
     }
 }
 
