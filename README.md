@@ -14,3 +14,5 @@ A Database Engine Project Written in C#
 - [Abstract Syntax Tree (AST) Ⅲ](https://dyingdown.github.io/2025/09/18/Database-Engine-Project-Abstract-Syntax-Tree-AST-%E2%85%A2/)
 
 - [SQL Parser Ⅳ](https://dyingdown.github.io/2025/09/18/Database-Engine-Project-SQL-Parser-%E2%85%A3/)
+
+- [Semantic Analysis & Catalog Management Ⅴ](https://dyingdown.github.io/2025/09/23/Database-Engine-Project-Semantic-Analysis-Catalog-Management-%E2%85%A4/)
