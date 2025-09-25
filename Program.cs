@@ -25,9 +25,9 @@ class Program
 
         // 运行 Parser 测试
         ParserTest.RunAllTests();
-
-        // 运行表达式类型推断测试
-        ExpressionTypeInferrerTest.TestTypeCaching();
+        
+        // 运行语义分析器测试
+        SemanticAnalyzerTest.RunAllTests();
 
         var pager = new Pager();
         var bufferPool = new BufferPool();

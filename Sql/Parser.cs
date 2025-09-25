@@ -103,6 +103,19 @@ class Parser {
             NextToken();
             node.OrderItems = ParseOrderBy();
         }
+
+        // LIMIT clause parsing (after ORDER BY)
+        if (currentToken?.Type == TokenType.LIMIT) {
+            NextToken();
+            if (currentToken?.Type != TokenType.INT) {
+                throw new Exception("LIMIT must be followed by an integer value");
+            }
+            if (!int.TryParse(currentToken.Lexeme, out int limitValue)) {
+                throw new Exception("LIMIT value must be a valid integer");
+            }
+            node.Limit = limitValue;
+            NextToken();
+        }
         return node;
     }
 
@@ -430,7 +443,11 @@ class Parser {
                 aliasName = currentToken.Lexeme;
                 NextToken();
             }
-            list.Add((tableName, aliasName));
+            
+            // Store as (accessName, tableName) where accessName is alias or tableName if no alias
+            string accessName = string.IsNullOrEmpty(aliasName) ? tableName : aliasName;
+            list.Add((accessName, tableName));
+            
             if (currentToken?.Type == TokenType.COMMA) {
                 NextToken();
                 continue;
@@ -561,11 +578,13 @@ class Parser {
             return new InExpression(left, values);
         }
         
-        // 处理普通比较操作符
-        while (currentToken?.Type == TokenType.EQUAL || currentToken?.Type == TokenType.GREATER_THAN ||
-              currentToken?.Type == TokenType.LESS_THAN || currentToken?.Type == TokenType.GREATER_EQUAL_TO || currentToken?.Type == TokenType.LESS_EQUAL_TO) {
+        // 处理普通比较操作符，包括不等于
+        while (currentToken?.Type == TokenType.EQUAL || currentToken?.Type == TokenType.NOT_EQUAL ||
+              currentToken?.Type == TokenType.GREATER_THAN || currentToken?.Type == TokenType.LESS_THAN ||
+              currentToken?.Type == TokenType.GREATER_EQUAL_TO || currentToken?.Type == TokenType.LESS_EQUAL_TO) {
             var op = currentToken?.Type switch {
                 TokenType.EQUAL => BinaryOperatorType.Equal,
+                TokenType.NOT_EQUAL => BinaryOperatorType.NotEqual,
                 TokenType.LESS_EQUAL_TO => BinaryOperatorType.LessOrEqual,
                 TokenType.LESS_THAN => BinaryOperatorType.LessThan,
                 TokenType.GREATER_EQUAL_TO => BinaryOperatorType.GreaterOrEqual,
@@ -674,15 +693,7 @@ class Parser {
                     throw new Exception("Missing ')' for function call");
                 }
                 NextToken();
-                FunctionName funcName = name switch {
-                    "sum" => FunctionName.Sum,
-                    "avg" => FunctionName.Avg,
-                    "count" => FunctionName.Count,
-                    "min" => FunctionName.Min,
-                    "max" => FunctionName.Max,
-                    _ => throw new Exception("Unsupported function")
-                };
-                return new FunctionCallExpression(funcName, arguments);
+                return new FunctionCallExpression(name.ToUpper(), arguments); // 统一转换为大写
             }
 
             // Only ID tokens can have dot notation for table.column
@@ -693,12 +704,17 @@ class Parser {
             
             if (currentToken?.Type == TokenType.DOT) {
                 NextToken();
-                if (currentToken?.Type != TokenType.ID) {
-                    throw new Exception("Dot must be followed by column name");
+                if (currentToken?.Type == TokenType.ID) {
+                    string columnName = currentToken.Lexeme;
+                    NextToken();
+                    return new ColumnRefExpression(columnName, name);
+                } else if (currentToken?.Type == TokenType.ASTERISK) {
+                    // Handle tablename.*
+                    NextToken();
+                    return new StarExpression(name);
+                } else {
+                    throw new Exception("Dot must be followed by column name or asterisk");
                 }
-                string columnName = currentToken.Lexeme;
-                NextToken();
-                return new ColumnRefExpression(columnName, name);
             }
             return new ColumnRefExpression(name);
         }

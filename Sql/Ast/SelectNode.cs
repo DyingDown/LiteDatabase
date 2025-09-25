@@ -8,6 +8,7 @@ public class SelectNode : SqlNode {
 
     public List<ColumnRefExpression> GroupByColumns { get; set; } = [];
     public List<OrderItem> OrderItems { get; set; } = [];
+    public int? Limit { get; set; } = null;
 
     public override void Accept(IVisitor visitor) => visitor.Visit(this);
 
@@ -19,11 +20,12 @@ SELECT
     item.IsStar ? "*" : $"{item.Expr}" + (string.IsNullOrEmpty(item.AliasName) ? "" : $" AS {item.AliasName}")
   ))}
 FROM {string.Join(", ", TableNamesWithAlias.Select(t =>
-    string.IsNullOrEmpty(t.Item2) ? t.Item1 : $"{t.Item1} AS {t.Item2}"
+    t.Item1 == t.Item2 ? t.Item2 : $"{t.Item2} AS {t.Item1}"
 ))}
 {(WhereClause != null ? $"WHERE {WhereClause}" : "")}
 {(GroupByColumns.Count > 0 ? $"GROUP BY {string.Join(", ", GroupByColumns)}" : "")}
 {(OrderItems.Count > 0 ? $"ORDER BY {string.Join(", ", OrderItems.Select(o => $"{o.ColumnRef.ColumnName} {o.OrderType}"))}" : "")}
+    {(Limit.HasValue ? $"LIMIT {Limit.Value}" : "")}
 """.Trim();
     }
 }

@@ -8,7 +8,7 @@ namespace LiteDatabase.Table;
 public class TableManager : ITableManager {
     private IStorageEngine storageEngine;
 
-    private ITxnEngine txnEngine;
+    private ITxnEngine txnEngine; //transaction
 
     private ICatalogManager catalogManager;
 

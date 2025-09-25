@@ -1,10 +1,10 @@
-using LiteDatabase.Sql.Ast;
+using LiteDatabase.Sql.Semantic;
 
 namespace LiteDatabase.Sql.Ast.Expressions;
 
 
 public abstract class Expression {
-    public ColumnType? InferredType { get; set; }
+    public ExpressionType? InferredType { get; set; }
 
     public abstract override string ToString();
 

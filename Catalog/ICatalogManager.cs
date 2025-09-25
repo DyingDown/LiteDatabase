@@ -14,4 +14,10 @@ public interface ICatalogManager {
     // 表ID管理
     int GetTableId(string tableName);
     string GetTableName(int tableId);
+    
+    // 函数管理
+    bool FunctionExists(string functionName);
+    FunctionDefinition? GetFunction(string functionName);
+    void RegisterFunction(FunctionDefinition function);
+    IEnumerable<FunctionDefinition> GetAllFunctions();
 }

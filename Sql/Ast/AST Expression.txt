@@ -57,6 +57,7 @@
                       [GROUP BY <ColumnList>]
                       [HAVING <Expression>]
                       [ORDER BY <OrderList>]
+                      [LIMIT <Number>]
                       [SEMICOLON]
 
 <SelectList> ::= ASTERISK

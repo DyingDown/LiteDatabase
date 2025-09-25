@@ -42,6 +42,7 @@ public enum TokenType {
 	JOIN,
 	KEY,
 	LIKE,
+	LIMIT,
 	MIN,
 	MAX,
 	NOT,

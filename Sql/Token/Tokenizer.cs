@@ -169,6 +169,7 @@ public class Tokenizer {
             "join" => new Token(TokenType.JOIN, str),
             "key" => new Token(TokenType.KEY, str),
             "like" => new Token(TokenType.LIKE, str),
+            "limit" => new Token(TokenType.LIMIT, str),
             "min" => new Token(TokenType.MIN, str),
             "max" => new Token(TokenType.MAX, str),
             "not" => new Token(TokenType.NOT, str),
