@@ -1,10 +1,7 @@
+namespace LiteDatabase.Storage.Cache;
 
-using LiteDatabase.Storage.PageData;
-
-namespace LiteDatabase.Storage;
-
-public interface IBufferPool {
-    Page GetPage(uint pageNo);
-    void PutPage(Page page);
-    void RemovePage(uint pageNo);
+public interface IBufferPool<K, V> {
+    public bool TryGet(K Key, out V value);
+    public void Put(K Key, V Value);
+    public void Close();
 }

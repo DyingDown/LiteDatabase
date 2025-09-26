@@ -2,24 +2,28 @@ namespace LiteDatabase.Storage;
 
 using System.IO;
 using LiteDatabase.Config;
+using LiteDatabase.Storage.Cache;
 using LiteDatabase.Storage.PageData;
+using Microsoft.VisualBasic;
 
 public class Pager {
 
     private readonly FileIO fileIO;
-    private readonly IBufferPool bufferPool;
+    private readonly IBufferPool<uint, Page> bufferPool;
 
-    public Pager(FileIO fileIO, IBufferPool bufferPool) {
+    public Pager(FileIO fileIO, IBufferPool<uint, Page> bufferPool) {
         this.fileIO = fileIO;
         this.bufferPool = bufferPool;
     }
 
     public Page GetPage(uint pageNo) {
-        var page = bufferPool.GetPage(pageNo);
-        if (page == null) {
+        Page page;
+        var success = bufferPool.TryGet(pageNo, out page);
+        if (!success || page == null) {
+            
             var bytes = fileIO.ReadPage(pageNo);
             page = Page.Decode(bytes);
-            bufferPool.PutPage(page);
+            bufferPool.Put(pageNo, page);
         }
         return page;
     }
