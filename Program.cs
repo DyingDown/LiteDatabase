@@ -29,11 +29,11 @@ class Program
         // 运行语义分析器测试
         SemanticAnalyzerTest.RunAllTests();
 
-        var pager = new Pager();
-        var bufferPool = new BufferPool();
-        var fileIO = new FileIO();
+        var cache = new LRUCache();
+        var fileIO = new FileIO("test.db");
+        var pager = new Pager(fileIO, cache);
 
-        IStorageEngine storageEngine = new StorageEngine(pager, bufferPool, fileIO);
+        IStorageEngine storageEngine = new StorageEngine(pager);
 
         var logManager = new LogManager();
         var lockManager = new LockManager();

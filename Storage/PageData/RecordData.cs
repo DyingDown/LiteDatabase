@@ -7,6 +7,15 @@ public class RecordData : IPageData {
     public List<(int Offset, int Size)> SlotArray { get; set; } = new(); // use slot to record length and offset of each row
 
     public byte[] Data { get; set; } = Array.Empty <byte>();
+
+    private int _cachedSize = -1;
+    private bool _dirty = true;
+
+    public void AddRow(Row row) {
+        Rows.Add(row);
+        _dirty = true;
+    }
+
     public byte[] Encode() {
         SlotArray.Clear();
         using var ms = new MemoryStream();
@@ -21,12 +30,14 @@ public class RecordData : IPageData {
 
         using var result = new MemoryStream();
         WriteInt(result, SlotArray.Count);
-        foreach (var (offset, size) in SlotArray)
-        {
+        foreach (var (offset, size) in SlotArray) {
             WriteInt(result, offset);
             WriteInt(result, size);
         }
         result.Write(Data, 0, Data.Length);
+
+        _cachedSize = (int)result.Length;
+        _dirty = false;
         return result.ToArray();
     }
 
@@ -97,7 +108,13 @@ public class RecordData : IPageData {
         return new Row(data);
     }
 
-    public int Size() => Encode().Length;
+    public int Size() {
+        if (_dirty || _cachedSize < 0) {
+            Encode();
+        }
+        return _cachedSize;
+    }
+
     private static void WriteInt(Stream s, int v) => s.Write(BitConverter.GetBytes(v), 0, 4);
     // Helper methods
     private static int ReadInt(Stream s)
